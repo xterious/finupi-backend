@@ -1,0 +1,162 @@
+[
+    {
+        "id": "tx001",
+        "date": "2023-07-01 08:30:00",
+        "merchant": "Customer1",
+        "amount": 450,
+        "type": "credit",
+        "category": "Sales"
+    },
+    {
+        "id": "tx002",
+        "date": "2023-07-01 14:20:00",
+        "merchant": "Supplier1",
+        "amount": 1200,
+        "type": "debit",
+        "category": "Purchases"
+    },
+    {
+        "id": "tx003",
+        "date": "2023-07-02 09:45:00",
+        "merchant": "Customer2",
+        "amount": 350,
+        "type": "credit",
+        "category": "Sales"
+    },
+    {
+        "id": "tx004",
+        "date": "2023-07-02 17:30:00",
+        "merchant": "Customer3",
+        "amount": 500,
+        "type": "credit",
+        "category": "Sales"
+    },
+    {
+        "id": "tx005",
+        "date": "2023-07-03 10:15:00",
+        "merchant": "ElectricityBill",
+        "amount": 600,
+        "type": "debit",
+        "category": "Utilities"
+    },
+    {
+        "id": "tx006",
+        "date": "2023-07-03 16:40:00",
+        "merchant": "Customer4",
+        "amount": 800,
+        "type": "credit",
+        "category": "Sales"
+    },
+    {
+        "id": "tx007",
+        "date": "2023-07-04 11:20:00",
+        "merchant": "Supplier2",
+        "amount": 950,
+        "type": "debit",
+        "category": "Purchases"
+    },
+    {
+        "id": "tx008",
+        "date": "2023-07-04 15:10:00",
+        "merchant": "Customer5",
+        "amount": 600,
+        "type": "credit",
+        "category": "Sales"
+    },
+    {
+        "id": "tx009",
+        "date": "2023-07-05 09:30:00",
+        "merchant": "Customer6",
+        "amount": 750,
+        "type": "credit",
+        "category": "Sales"
+    },
+    {
+        "id": "tx010",
+        "date": "2023-07-05 13:45:00",
+        "merchant": "WaterBill",
+        "amount": 300,
+        "type": "debit",
+        "category": "Utilities"
+    },
+    {
+        "id": "tx011",
+        "date": "2023-07-06 10:20:00",
+        "merchant": "Customer7",
+        "amount": 900,
+        "type": "credit",
+        "category": "Sales"
+    },
+    {
+        "id": "tx012",
+        "date": "2023-07-06 14:30:00",
+        "merchant": "InternetBill",
+        "amount": 450,
+        "type": "debit",
+        "category": "Utilities"
+    },
+    {
+        "id": "tx013",
+        "date": "2023-07-07 08:45:00",
+        "merchant": "Customer8",
+        "amount": 550,
+        "type": "credit",
+        "category": "Sales"
+    },
+    {
+        "id": "tx014",
+        "date": "2023-07-07 16:20:00",
+        "merchant": "Supplier3",
+        "amount": 1500,
+        "type": "debit",
+        "category": "Purchases"
+    },
+    {
+        "id": "tx015",
+        "date": "2023-07-08 09:15:00",
+        "merchant": "Customer9",
+        "amount": 650,
+        "type": "credit",
+        "category": "Sales"
+    },
+    {
+        "id": "tx016",
+        "date": "2023-07-08 13:30:00",
+        "merchant": "Customer10",
+        "amount": 700,
+        "type": "credit",
+        "category": "Sales"
+    },
+    {
+        "id": "tx017",
+        "date": "2023-07-09 11:10:00",
+        "merchant": "Supplier4",
+        "amount": 800,
+        "type": "debit",
+        "category": "Purchases"
+    },
+    {
+        "id": "tx018",
+        "date": "2023-07-09 17:00:00",
+        "merchant": "Customer11",
+        "amount": 850,
+        "type": "credit",
+        "category": "Sales"
+    },
+    {
+        "id": "tx019",
+        "date": "2023-07-10 10:30:00",
+        "merchant": "PhoneBill",
+        "amount": 350,
+        "type": "debit",
+        "category": "Utilities"
+    },
+    {
+        "id": "tx020",
+        "date": "2023-07-10 15:45:00",
+        "merchant": "Customer12",
+        "amount": 950,
+        "type": "credit",
+        "category": "Sales"
+    }
+]
