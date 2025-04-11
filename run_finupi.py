@@ -402,5 +402,432 @@ def get_user_credit_history(user_id):
             'traceback': traceback.format_exc()
         }), 500
 
+@app.route('/financial_literacy_content', methods=['GET'])
+def get_financial_literacy_content():
+    """
+    Endpoint to provide simple financial literacy content with a single quiz question.
+    Returns a heading, one-liner explanation, and a related quiz question.
+    """
+    try:
+        # Check if topic is specified
+        topic = request.args.get('topic', None)
+        
+        # Define available financial literacy topics
+        topics = [
+            "Budgeting",
+            "Saving",
+            "Credit Score",
+            "Emergency Fund",
+            "Debt Management",
+            "Investments",
+            "UPI Safety",
+            "Insurance",
+            "Tax Planning",
+            "Retirement Planning"
+        ]
+        
+        # If no topic specified, return a random one
+        if not topic:
+            import random
+            topic = random.choice(topics)
+        
+        # Generate content with Gemini or use fallback
+        try:
+            prompt = f"""
+            Create a simple financial literacy tip about "{topic}" with exactly this JSON structure (provide just the JSON, no explanation):
+            {{
+                "heading": "A short clear heading about {topic}",
+                "explanation": "A single sentence explaining the key concept of {topic}",
+                "quiz": {{
+                    "question": "A single question testing knowledge about {topic}",
+                    "options": ["Option A", "Option B", "Option C", "Option D"],
+                    "correct_index": 0,
+                    "explanation": "Brief explanation of the correct answer"
+                }}
+            }}
+            Make the content educational and easy to understand.
+            """
+            
+            model = genai.GenerativeModel(model_name="models/gemini-1.5-pro")
+            response = model.generate_content([prompt])
+            
+            try:
+                # Parse the JSON response
+                content_json = json.loads(response.text)
+                return jsonify(content_json)
+            except json.JSONDecodeError:
+                # Try to extract JSON from text
+                import re
+                json_match = re.search(r'```json\n(.*?)\n```', response.text, re.DOTALL)
+                if json_match:
+                    content_json = json.loads(json_match.group(1))
+                    return jsonify(content_json)
+                json_match = re.search(r'```\n(.*?)\n```', response.text, re.DOTALL)
+                if json_match:
+                    content_json = json.loads(json_match.group(1))
+                    return jsonify(content_json)
+                # Fallback to pre-defined content
+                return jsonify(get_simple_financial_tip(topic))
+                
+        except Exception as e:
+            # Fallback to pre-defined content
+            return jsonify(get_simple_financial_tip(topic))
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+        
+def get_simple_financial_tip(topic):
+    """Provide pre-defined financial literacy content as fallback"""
+    tips = {
+        "Budgeting": {
+            "heading": "The 50/30/20 Rule",
+            "explanation": "Allocate 50% of your income to needs, 30% to wants, and 20% to savings and debt repayment.",
+            "quiz": {
+                "question": "Which category in the 50/30/20 rule includes groceries?",
+                "options": ["Needs", "Wants", "Savings", "Debt repayment"],
+                "correct_index": 0,
+                "explanation": "Groceries are considered essential expenses and fall under the 'needs' category."
+            }
+        },
+        "Saving": {
+            "heading": "Pay Yourself First",
+            "explanation": "Set aside money for savings before spending on discretionary items to build wealth consistently.",
+            "quiz": {
+                "question": "What does 'paying yourself first' mean?",
+                "options": ["Spending money on yourself", "Saving before expenses", "Avoiding all expenses", "Borrowing money"],
+                "correct_index": 1,
+                "explanation": "It means automatically setting aside savings before spending on other expenses."
+            }
+        },
+        "Credit Score": {
+            "heading": "Credit Score Factors",
+            "explanation": "Your payment history and credit utilization ratio have the biggest impact on your credit score.",
+            "quiz": {
+                "question": "What is considered a good credit utilization ratio?",
+                "options": ["Below 30%", "Above 50%", "Exactly 100%", "As high as possible"],
+                "correct_index": 0,
+                "explanation": "Keeping your credit utilization below 30% is generally recommended for a good credit score."
+            }
+        },
+        "Emergency Fund": {
+            "heading": "3-6 Months of Expenses",
+            "explanation": "An emergency fund should ideally cover 3-6 months of essential expenses to handle unexpected financial shocks.",
+            "quiz": {
+                "question": "Where should you keep your emergency fund?",
+                "options": ["In a savings account", "Invested in stocks", "In cryptocurrency", "As cash at home"],
+                "correct_index": 0,
+                "explanation": "Emergency funds should be kept in easily accessible accounts like savings accounts."
+            }
+        },
+        "Debt Management": {
+            "heading": "Avalanche vs. Snowball Method",
+            "explanation": "The avalanche method (paying highest interest first) saves more money, while the snowball method (paying smallest debts first) provides psychological wins.",
+            "quiz": {
+                "question": "Which debt repayment strategy saves the most money?",
+                "options": ["Avalanche method", "Snowball method", "Minimum payments", "Consolidation"],
+                "correct_index": 0,
+                "explanation": "The avalanche method saves more money by targeting high-interest debt first."
+            }
+        },
+        "Investments": {
+            "heading": "Compound Interest",
+            "explanation": "Compound interest allows your investments to grow exponentially as you earn returns on both your principal and accumulated interest.",
+            "quiz": {
+                "question": "Why is starting to invest early so important?",
+                "options": ["Compound interest", "Lower fees", "Simpler options", "Less paperwork"],
+                "correct_index": 0,
+                "explanation": "Starting early gives compound interest more time to work in your favor."
+            }
+        },
+        "UPI Safety": {
+            "heading": "Never Share OTP",
+            "explanation": "Never share your UPI PIN or OTP with anyone, not even customer support, as legitimate services never ask for this information.",
+            "quiz": {
+                "question": "What should you do if someone requests your UPI PIN?",
+                "options": ["Never share it", "Share only with banks", "Share if they offer money", "Share if they're from customer service"],
+                "correct_index": 0,
+                "explanation": "Never share your UPI PIN with anyone under any circumstances."
+            }
+        },
+        "Insurance": {
+            "heading": "Term vs. Whole Life Insurance",
+            "explanation": "Term life insurance offers more coverage for less money but expires, while whole life insurance costs more but includes an investment component.",
+            "quiz": {
+                "question": "Which type of life insurance typically offers the most coverage for the lowest premium?",
+                "options": ["Term life", "Whole life", "Universal life", "Variable life"],
+                "correct_index": 0,
+                "explanation": "Term life insurance provides the most coverage for the lowest cost but expires after a specific term."
+            }
+        },
+        "Tax Planning": {
+            "heading": "Tax-Advantaged Accounts",
+            "explanation": "Utilizing tax-advantaged accounts like 401(k)s, IRAs, and HSAs can significantly reduce your tax burden while helping you save for important goals.",
+            "quiz": {
+                "question": "What is the main benefit of tax-advantaged accounts?",
+                "options": ["Tax savings", "Higher returns", "No risk", "Unlimited contributions"],
+                "correct_index": 0,
+                "explanation": "Tax-advantaged accounts provide tax benefits either when contributing or withdrawing funds."
+            }
+        },
+        "Retirement Planning": {
+            "heading": "The 4% Rule",
+            "explanation": "The 4% rule suggests you can withdraw 4% of your retirement savings annually with minimal risk of running out of money during a 30-year retirement.",
+            "quiz": {
+                "question": "According to the 4% rule, how much would you need saved to withdraw ₹40,000 monthly in retirement?",
+                "options": ["₹1.2 crore", "₹48 lakh", "₹24 lakh", "₹96 lakh"],
+                "correct_index": 0,
+                "explanation": "₹40,000 monthly = ₹4.8 lakh annually. Using the 4% rule, you would need 25 times this amount (₹1.2 crore)."
+            }
+        }
+    }
+    
+    # Return the specified topic or a default one
+    return tips.get(topic, tips["Budgeting"])
+
+@app.route('/financial_module/<module_id>', methods=['GET'])
+def get_module_content(module_id):
+    """Get detailed content for a specific financial literacy module"""
+    try:
+        modules = [
+            "Budgeting Basics",
+            "Saving Strategies",
+            "Understanding Credit",
+            "Debt Management",
+            "Investment Fundamentals",
+            "UPI and Digital Payments",
+            "Tax Planning for Beginners",
+            "Insurance Essentials"
+        ]
+        
+        # Validate module_id
+        try:
+            module_index = int(module_id) - 1
+            if module_index < 0 or module_index >= len(modules):
+                return jsonify({"error": "Invalid module ID"}), 400
+            module_name = modules[module_index]
+        except ValueError:
+            return jsonify({"error": "Module ID must be a number"}), 400
+            
+        return generate_module_content(module_name)
+        
+    except Exception as e:
+        import traceback
+        return jsonify({
+            'error': str(e),
+            'traceback': traceback.format_exc()
+        }), 500
+
+def generate_module_content(module_name):
+    """Generate detailed content for a financial literacy module using Gemini AI"""
+    try:
+        # Generate content structure with Gemini
+        prompt = f"""
+        Create a detailed financial literacy module about "{module_name}" for users of a UPI-based credit scoring app.
+        
+        Return ONLY a JSON object with this exact structure (no explanation, just the JSON):
+        {{
+            "module_title": "{module_name}",
+            "module_description": "A detailed 1-2 sentence description of the module",
+            "completed": false,
+            "lessons": [
+                {{
+                    "lesson_id": 1,
+                    "title": "Lesson title",
+                    "content": "A detailed educational paragraph about this specific aspect of {module_name} (about 4-5 sentences)",
+                    "completed": false,
+                    "key_points": ["Key point 1", "Key point 2", "Key point 3"]
+                }},
+                // 2 more similar lessons
+            ],
+            "quiz": {{
+                "quiz_id": 1,
+                "title": "Quiz on {module_name}",
+                "completed": false,
+                "questions": [
+                    {{
+                        "question_id": 1,
+                        "question": "A question related to this module?",
+                        "options": ["Option A", "Option B", "Option C", "Option D"],
+                        "correct_answer": 0,  // Index of correct option (0-based)
+                        "explanation": "Why this answer is correct"
+                    }},
+                    // 4 more similar questions
+                ]
+            }}
+        }}
+        
+        The lessons should progress logically from basic to more advanced concepts.
+        Make the quiz questions relevant to the lesson content and of varying difficulty.
+        Ensure all content is accurate, educational, and user-friendly.
+        """
+        
+        model = genai.GenerativeModel(model_name="models/gemini-1.5-pro")
+        response = model.generate_content([prompt])
+        
+        try:
+            # Parse the JSON response
+            content_json = json.loads(response.text)
+            return jsonify(content_json)
+        except json.JSONDecodeError:
+            # If JSON parsing fails, try to extract JSON from text
+            import re
+            json_match = re.search(r'```json\n(.*?)\n```', response.text, re.DOTALL)
+            if json_match:
+                content_json = json.loads(json_match.group(1))
+                return jsonify(content_json)
+            
+            # Fallback to manual structure if JSON extraction fails
+            return jsonify(get_fallback_module_content(module_name))
+            
+    except Exception as e:
+        # Return fallback content if Gemini fails
+        return jsonify(get_fallback_module_content(module_name))
+
+def get_fallback_module_content(module_name):
+    """Provide fallback content if AI generation fails"""
+    if module_name == "Budgeting Basics":
+        return {
+            "module_title": "Budgeting Basics",
+            "module_description": "Learn how to create and maintain a personal budget, track expenses, and allocate funds effectively.",
+            "completed": False,
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "title": "Creating Your First Budget",
+                    "content": "A budget is a financial plan that helps you track income and expenses. Start by listing all sources of income and categorizing your expenses into fixed and variable costs. Fixed costs include rent, utilities, and loan payments, while variable costs include groceries, entertainment, and dining out. Aim to allocate your income using the 50/30/20 rule: 50% for needs, 30% for wants, and 20% for savings and debt repayment.",
+                    "completed": False,
+                    "key_points": ["List all income sources", "Categorize expenses", "Use the 50/30/20 rule", "Review and adjust regularly"]
+                },
+                {
+                    "lesson_id": 2,
+                    "title": "Tracking Your Expenses",
+                    "content": "Consistent expense tracking is crucial for maintaining an effective budget. Use digital tools like budgeting apps, spreadsheets, or even a simple notebook to record every expense. Categorize each expense and review your spending patterns weekly. Look for areas where you might be overspending and identify opportunities to cut back. Remember that small expenses add up over time, so tracking even minor purchases is important.",
+                    "completed": False,
+                    "key_points": ["Record every expense", "Use digital tools", "Review weekly", "Watch for patterns"]
+                },
+                {
+                    "lesson_id": 3,
+                    "title": "Adjusting Your Budget",
+                    "content": "A budget is not set in stone—it should evolve with your financial situation. Review your budget monthly and make necessary adjustments based on changes in income or expenses. If you consistently overspend in certain categories, either increase the allocation if possible or find ways to reduce spending. As your income grows, prioritize increasing your savings rate rather than lifestyle inflation. Develop a system for handling unexpected expenses through an emergency fund.",
+                    "completed": False,
+                    "key_points": ["Monthly reviews", "Adjust allocations as needed", "Prioritize saving over spending", "Plan for emergencies"]
+                }
+            ],
+            "quiz": {
+                "quiz_id": 1,
+                "title": "Quiz on Budgeting Basics",
+                "completed": False,
+                "questions": [
+                    {
+                        "question_id": 1,
+                        "question": "What is the recommended allocation for needs in the 50/30/20 budgeting rule?",
+                        "options": ["30%", "20%", "50%", "40%"],
+                        "correct_answer": 2,
+                        "explanation": "The 50/30/20 rule suggests allocating 50% of your income to needs, 30% to wants, and 20% to savings and debt repayment."
+                    },
+                    {
+                        "question_id": 2,
+                        "question": "Which of these is NOT typically considered a fixed expense?",
+                        "options": ["Rent", "Grocery shopping", "Car loan payment", "Insurance premium"],
+                        "correct_answer": 1,
+                        "explanation": "Grocery shopping is typically a variable expense because the amount spent can vary significantly from month to month."
+                    },
+                    {
+                        "question_id": 3,
+                        "question": "How often should you review and adjust your budget?",
+                        "options": ["Daily", "Weekly", "Monthly", "Yearly"],
+                        "correct_answer": 2,
+                        "explanation": "A monthly review is recommended to ensure your budget stays relevant to your current financial situation."
+                    },
+                    {
+                        "question_id": 4,
+                        "question": "What should you prioritize as your income increases?",
+                        "options": ["Spending more on luxury items", "Increasing your savings rate", "Taking on more debt", "Maintaining the same lifestyle"],
+                        "correct_answer": 1,
+                        "explanation": "As your income grows, prioritize increasing your savings rate rather than increasing your spending (lifestyle inflation)."
+                    },
+                    {
+                        "question_id": 5,
+                        "question": "Why is tracking small expenses important?",
+                        "options": ["It's not important", "They add up over time", "Only large expenses matter", "To impress others"],
+                        "correct_answer": 1,
+                        "explanation": "Small expenses add up significantly over time and can have a major impact on your overall financial health."
+                    }
+                ]
+            }
+        }
+    else:
+        # Generic structure for other modules
+        return {
+            "module_title": module_name,
+            "module_description": get_module_description(module_name),
+            "completed": False,
+            "lessons": [
+                {
+                    "lesson_id": 1,
+                    "title": f"Introduction to {module_name}",
+                    "content": f"This lesson introduces you to the fundamentals of {module_name}. Understanding these concepts will help you make better financial decisions and improve your overall financial health. We'll cover the basic principles, common terminology, and practical applications in your daily life.",
+                    "completed": False,
+                    "key_points": ["Understanding the basics", "Learning key terminology", "Practical applications"]
+                },
+                {
+                    "lesson_id": 2,
+                    "title": f"Intermediate {module_name} Concepts",
+                    "content": f"Building on the basics, this lesson explores more detailed aspects of {module_name}. You'll learn about strategies to optimize your approach, common pitfalls to avoid, and how to assess what works best for your personal financial situation.",
+                    "completed": False,
+                    "key_points": ["Advanced strategies", "Avoiding common mistakes", "Personalization techniques"]
+                },
+                {
+                    "lesson_id": 3,
+                    "title": f"Mastering {module_name}",
+                    "content": f"The final lesson covers advanced concepts in {module_name}. You'll discover how experts approach these topics, learn about tools and resources to help you excel, and understand how to integrate these concepts with other aspects of financial management.",
+                    "completed": False,
+                    "key_points": ["Expert techniques", "Useful tools and resources", "Integration with other financial aspects"]
+                }
+            ],
+            "quiz": {
+                "quiz_id": 1,
+                "title": f"Quiz on {module_name}",
+                "completed": False,
+                "questions": [
+                    {
+                        "question_id": 1,
+                        "question": f"What is the primary purpose of {module_name}?",
+                        "options": ["To increase debt", "To improve financial health", "To avoid financial planning", "To increase spending"],
+                        "correct_answer": 1,
+                        "explanation": f"The primary purpose of {module_name} is to improve your overall financial health through better understanding and management."
+                    },
+                    {
+                        "question_id": 2,
+                        "question": "Which of these is a recommended financial practice?",
+                        "options": ["Ignoring your finances", "Only focusing on short-term goals", "Regular reviewing and planning", "Spending more than you earn"],
+                        "correct_answer": 2,
+                        "explanation": "Regular reviewing and planning is essential for maintaining good financial health."
+                    },
+                    {
+                        "question_id": 3,
+                        "question": "What role does education play in financial literacy?",
+                        "options": ["It's unnecessary", "It's helpful but optional", "It's fundamental to making good decisions", "It only matters for financial professionals"],
+                        "correct_answer": 2,
+                        "explanation": "Education is fundamental to making good financial decisions, regardless of your income level or financial goals."
+                    },
+                    {
+                        "question_id": 4,
+                        "question": "How often should you reassess your financial strategies?",
+                        "options": ["Never", "Only when in financial trouble", "Regularly", "Once in a lifetime"],
+                        "correct_answer": 2,
+                        "explanation": "Regular reassessment helps ensure your financial strategies remain aligned with your goals as your life circumstances change."
+                    },
+                    {
+                        "question_id": 5,
+                        "question": "What is the benefit of learning about financial concepts?",
+                        "options": ["It makes you worry more", "It helps you make better financial decisions", "It has no practical benefit", "It's only useful for the wealthy"],
+                        "correct_answer": 1,
+                        "explanation": "Learning about financial concepts helps everyone, regardless of income level, make better financial decisions that can improve their quality of life."
+                    }
+                ]
+            }
+        }
+
 if __name__ == '__main__':  
     app.run(debug=True)
