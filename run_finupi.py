@@ -4,6 +4,8 @@ import numpy as np
 from datetime import datetime, timedelta
 from pymongo import MongoClient
 import json
+import os
+import google.generativeai as genai
 from typing import Dict, List, Tuple
 
 # Import your existing components
@@ -134,6 +136,32 @@ def prepare_transaction_data(transactions):
     
     return df
 
+def get_deepseek_suggestions(explanation: str, improvements: List[str]) -> str:
+    """
+    Generate personalized credit improvement suggestions using Gemini LLM.
+    
+    Args:
+        explanation: Explanation of the user's financial behavior
+        improvements: List of improvement suggestions
+        
+    Returns:
+        str: LLM-generated personalized improvement suggestion
+    """
+    prompt = f"""
+    A user has the following financial behavior:
+    - Explanation: {explanation}
+    - Suggestions: {', '.join(improvements) if improvements else "None"}
+
+    Write a professional but friendly 5-6 sentence suggestion to help the user improve their credit score.
+    """
+
+    try:
+        model = genai.GenerativeModel(model_name="models/gemini-1.5-pro")
+        response = model.generate_content([prompt])  # Make sure it's wrapped in a list
+        return response.text.strip()
+    except Exception as e:
+        return f"To improve your credit score, follow the recommendations provided. If you need more personalized advice, please consult with a financial advisor."
+
 @app.route('/upload_transactions', methods=['POST'])
 def upload_transactions():
     data = request.get_json()
@@ -230,6 +258,11 @@ def get_credit_score():
             if isinstance(tx.get('transaction_date'), pd.Timestamp):
                 tx['transaction_date'] = tx['transaction_date'].strftime('%Y-%m-%d')
         
+        # Generate personalized advice using Gemini
+        improvement_recommendations = credit_score_result['explanations']['improvement_recommendations']
+        explanation = "Your credit score analysis shows strengths and weaknesses in your financial behavior."
+        personalized_advice = get_deepseek_suggestions(explanation, improvement_recommendations)
+        
         # Store credit score result
         credit_score_record = {
             'user_id': user_id,
@@ -238,7 +271,8 @@ def get_credit_score():
             'timestamp': datetime.now(),
             'component_scores': credit_score_result['component_scores'],
             'loan_eligibility': credit_score_result['loan_eligibility'],
-            'improvement_recommendations': credit_score_result['explanations']['improvement_recommendations']
+            'improvement_recommendations': credit_score_result['explanations']['improvement_recommendations'],
+            'personalized_advice': personalized_advice
         }
         
         # Update existing record or create new one if it doesn't exist
@@ -254,6 +288,7 @@ def get_credit_score():
             'component_scores': credit_score_result['component_scores'],
             'loan_eligibility': credit_score_result['loan_eligibility'],
             'improvement_recommendations': credit_score_result['explanations']['improvement_recommendations'],
+            'personalized_advice': personalized_advice,
             'last_5_transactions': last_5_dict
         })
 
