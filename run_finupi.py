@@ -683,6 +683,20 @@ def generate_module_content(module_name):
         # Return fallback content if Gemini fails
         return jsonify(get_fallback_module_content(module_name))
 
+def get_module_description(module_name):
+    """Get a short description for each module"""
+    descriptions = {
+        "Budgeting Basics": "Learn how to create and maintain a personal budget, track expenses, and allocate funds effectively.",
+        "Saving Strategies": "Discover various saving techniques, emergency funds, and how to set achievable financial goals.",
+        "Understanding Credit": "Explore credit scores, credit reports, and responsible credit card usage.",
+        "Debt Management": "Learn strategies for managing and reducing debt, understanding interest rates, and loan options.",
+        "Investment Fundamentals": "Understand different investment vehicles, risk assessment, and building a balanced portfolio.",
+        "UPI and Digital Payments": "Master the use of UPI, digital wallets, and secure online transaction practices.",
+        "Tax Planning for Beginners": "Learn basic tax-saving strategies and understanding tax implications on various incomes.",
+        "Insurance Essentials": "Understand different types of insurance and how to select the right coverage for your needs."
+    }
+    return descriptions.get(module_name, "Explore this financial topic to improve your financial literacy.")
+
 def get_fallback_module_content(module_name):
     """Provide fallback content if AI generation fails"""
     if module_name == "Budgeting Basics":

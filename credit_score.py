@@ -651,18 +651,34 @@ class CreditScoreCalculator:
         emi_capacity = disposable_income * 0.5
         
         # Calculate interest rate based on score
-        if score >= 90:
-            interest_rate = 12.0
+        if score >= 95:
+            interest_rate = 1.2
+        elif score >= 90:
+            interest_rate = 1.3
+        elif score >= 85:
+            interest_rate = 1.4
         elif score >= 80:
-            interest_rate = 14.0
+            interest_rate = 1.5
+        elif score >= 75:
+            interest_rate = 1.6
         elif score >= 70:
-            interest_rate = 16.0
+            interest_rate = 1.7
+        elif score >= 65:
+            interest_rate = 1.8
         elif score >= 60:
-            interest_rate = 18.0
+            interest_rate = 1.9
+        elif score >= 55:
+            interest_rate = 2.0
         elif score >= 50:
-            interest_rate = 20.0
+            interest_rate = 2.1
+        elif score >= 45:
+            interest_rate = 2.2
+        elif score >= 40:
+            interest_rate = 2.3
+        elif score >= 35:
+            interest_rate = 2.4
         else:
-            interest_rate = 22.0  
+            interest_rate = 2.5
         
         # Calculate maximum loan duration (in months)
         max_duration = 12
