@@ -7,6 +7,7 @@ import json
 import os
 import google.generativeai as genai
 from typing import Dict, List, Tuple
+from flask_cors import CORS
 
 # Import your existing components
 from data_ingestion import TransactionData
@@ -14,6 +15,7 @@ from transaction_parser import TransactionParser, analyze_transactions
 from credit_score import calculate_credit_score
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes and origins
 
 # MongoDB Connection
 mongo_uri = "mongodb+srv://root:root@ipo-builder.lpq9ub9.mongodb.net/"
